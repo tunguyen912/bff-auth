@@ -1,0 +1,68 @@
+services:
+  bff:
+    build:
+      context: ./bff-base
+      dockerfile: Dockerfile
+    env_file:
+      - ./bff-base/.env
+    environment:
+      - GRPC_HOST=auth-service
+    networks:
+      - bff_auth_network
+    ports:
+      - $BFF_PORT:$BFF_PORT
+    volumes:
+      - ./bff-base:/src
+    restart: always
+    container_name: bff
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./auth-service/.env
+    environment:
+      - TYPEORM_HOST=db
+      - REDISDB_HOST=redis
+      - TYPEORM_PORT=3306
+      - REDISDB_PORT=6379
+      - AUTH_SERVICE_HOST=auth-service
+    networks:
+      - bff_auth_network
+    ports:
+      - $AUTH_PORT:$AUTH_PORT
+    volumes:
+      - ./auth-service:/src
+    restart: always
+    container_name: auth-service
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - $REDIS_PORT:6379
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - bff_auth_network
+    container_name: redis
+  db:
+    image: mysql:5.7
+    ports:
+      - $DB_PORT:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${TYPEORM_PASSWORD}
+    restart: unless-stopped
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - bff_auth_network
+    container_name: db
+
+volumes:
+  dbdata:
+  redis-data:
+
+networks:
+  bff_auth_network:

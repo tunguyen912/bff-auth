@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package auth;
+
+service Auth {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc GetInfo(GetInfoRequest) returns (GetInfoResponse);
+  rpc Validate(ValidateRequest) returns (ValidateResponse);
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  optional string id = 1;
+  optional string email = 2;
+  optional string jwt = 3;
+  optional string error = 4;
+}
+
+message GetInfoRequest {
+  string token = 1;
+}
+
+message GetInfoResponse {
+  optional string department = 1;
+  optional int64 accountId = 2;
+  optional string name = 3;
+  optional string error = 4;
+}
+
+message ValidateRequest {
+  string token = 1;
+}
+
+message ValidateResponse {
+  optional int64 accountId = 1;
+  optional int32 isAdmin = 2;
+  optional string error = 3;
+}
