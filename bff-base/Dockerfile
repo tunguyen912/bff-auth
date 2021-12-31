@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json .
 
-RUN npm install -g nodemon
+RUN npm install -g nodemon grpc-tools
 
 RUN npm install
 
